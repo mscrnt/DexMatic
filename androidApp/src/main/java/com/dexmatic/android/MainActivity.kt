@@ -1,9 +1,12 @@
+// File: androidApp/src/main/java/com/dexmatic/android/MainActivity.kt
+
 package com.dexmatic.android
 
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -42,37 +45,41 @@ fun CameraScreen() {
     val ocrService = remember { FakeOcrService() }
 
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
+        ActivityResultContracts.TakePicturePreview()
     ) { result: Bitmap? ->
         bitmap = result
-        result?.let {
+        result?.let { bmp ->
             scope.launch(Dispatchers.IO) {
                 val bytes = ByteArrayOutputStream().use { stream ->
-                    it.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 100, stream)
                     stream.toByteArray()
                 }
-                val parsed = ocrService.parseContact(bytes)
-                contact = parsed
+                contact = ocrService.parseContact(bytes)
             }
         }
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Button(onClick = { launcher.launch(null) }) {
-            Text("Capture Photo")
+            Text(text = "Capture Photo")
         }
-        bitmap?.let {
-            Image(bitmap = it.asImageBitmap(), contentDescription = null, modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .padding(top = 16.dp))
+
+        bitmap?.let { bmp ->
+            Spacer(modifier = Modifier.height(16.dp))
+            Image(
+                bitmap = bmp.asImageBitmap(),
+                contentDescription = "Captured business card",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
         }
+
         contact?.let { c ->
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Name: ${'$'}{c.name}")
-            Text("Company: ${'$'}{c.company ?: ""}")
-            Text("Phone: ${'$'}{c.phone ?: ""}")
-            Text("Email: ${'$'}{c.email ?: ""}")
+            Text(text = "Name: ${c.name}")
+            Text(text = "Phone: ${c.phone.orEmpty()}")
+            Text(text = "Email: ${c.email.orEmpty()}")
         }
     }
 }

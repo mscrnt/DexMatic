@@ -5,6 +5,7 @@
 *.ear
 /build/
 /.gradle/
+!gradle/wrapper/gradle-wrapper.jar
 
 # Android Studio
 .idea/
@@ -23,3 +24,10 @@ DerivedData/
 
 # Misc
 *.log
+
+# Common binary files
+*.exe
+*.bin
+
+# build folder
+**/build/

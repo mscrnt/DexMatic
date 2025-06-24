@@ -1,5 +1,22 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
     <style name="Theme.DexMatic" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <!-- Darker variant for status bar, etc. -->
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <!-- Accent/secondary color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+
+        <!-- Optional: control system bar colors -->
+        <item name="android:statusBarColor">@color/purple_700</item>
+        <item name="android:navigationBarColor">@color/black</item>
+
+        <!-- Light or dark status bar icons -->
+        <item name="android:windowLightStatusBar">false</item>
     </style>
+
 </resources>
