@@ -31,3 +31,4 @@ DerivedData/
 
 # build folder
 **/build/
+*.hprof
