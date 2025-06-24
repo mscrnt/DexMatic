@@ -1,0 +1,25 @@
+# Kotlin/Java
+*.class
+*.jar
+*.war
+*.ear
+/build/
+/.gradle/
+
+# Android Studio
+.idea/
+*.iml
+/local.properties
+
+# Swift/Xcode
+*.xcworkspace
+*.xcodeproj
+*.xcuserstate
+*.xcuserdata
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Misc
+*.log
