@@ -6,5 +6,6 @@ class FakeOcrService : OcrService {
     override suspend fun parseContact(imageData: ByteArray): Contact {
         val rawText = performAndroidOcr(imageData)
         return parser.parse(rawText)
+
     }
 }
