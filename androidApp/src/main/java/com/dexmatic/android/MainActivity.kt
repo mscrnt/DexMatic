@@ -70,6 +70,7 @@ fun CameraScreen() {
         contact?.let { c ->
             Spacer(modifier = Modifier.height(16.dp))
             Text("Name: ${'$'}{c.name}")
+            Text("Company: ${'$'}{c.company ?: ""}")
             Text("Phone: ${'$'}{c.phone ?: ""}")
             Text("Email: ${'$'}{c.email ?: ""}")
         }
