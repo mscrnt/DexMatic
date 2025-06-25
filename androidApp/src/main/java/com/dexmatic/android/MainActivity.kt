@@ -20,23 +20,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             DexMaticTheme {
-                DexMaticApp()
+                Scaffold(
+                    topBar = { TopAppBar(title = { Text("DexMatic") }) }
+                ) { innerPadding ->
+                    NavGraph(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    )
+                }
             }
         }
-    }
-}
-
-@Composable
-fun DexMaticApp() {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("DexMatic") })
-        }
-    ) { innerPadding ->
-        NavGraph(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-        )
     }
 }

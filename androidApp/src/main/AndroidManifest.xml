@@ -1,25 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- File: androidApp/src/main/AndroidManifest.xml -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Optional: grant camera permission if you move to a direct camera API -->
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false"/>
 
     <application
         android:label="DexMatic"
-        android:allowBackup="true"
-        android:supportsRtl="true"
         android:theme="@style/Theme.DexMatic">
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="document_scanner" />
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
     </application>
-
 </manifest>

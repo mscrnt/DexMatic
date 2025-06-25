@@ -8,20 +8,13 @@ plugins {
 }
 
 kotlin {
-    // Android target using the new DSL
     androidTarget {
         publishAllLibraryVariants()
     }
-
-    // JVM target
     jvm()
-
-    // iOS targets
     iosX64()
     iosArm64()
     iosSimulatorArm64()
-
-    // Apply default Apple hierarchy template
     applyDefaultHierarchyTemplate()
 
     sourceSets {
@@ -38,25 +31,18 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                // ML Kit Text Recognition
-                implementation("com.google.mlkit:text-recognition:16.0.0")
-                // coroutine extension to await Tasks
+                // Document Scanner UI + auto-crop flow (dynamic, Play Services)
+                implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0-beta1")
+                // Dynamic OCR engine (downloaded at runtime from Play Services)
+                implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
+                // Kotlin coroutines integration for Tasks.await()
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
             }
         }
 
-        val jvmMain by getting {
-            dependencies {
-                // jvmMain dependencies
-            }
-        }
+        val jvmMain by getting
         val jvmTest by getting
-
-        val iosMain by getting {
-            dependencies {
-                // iosMain dependencies
-            }
-        }
+        val iosMain by getting
         val iosTest by getting
     }
 }
@@ -68,7 +54,6 @@ android {
     defaultConfig {
         minSdk = 24
     }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -78,4 +63,9 @@ android {
 // Ensure all Kotlin compilations target Java 1.8
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+repositories {
+    google()
+    mavenCentral()
 }
