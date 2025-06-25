@@ -8,7 +8,7 @@ plugins {
 }
 
 kotlin {
-    // Android target using new DSL
+    // Android target using the new DSL
     androidTarget {
         publishAllLibraryVariants()
     }
@@ -32,13 +32,16 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test")
+                implementation(kotlin("test"))
             }
         }
 
         val androidMain by getting {
             dependencies {
-                // androidMain dependencies
+                // ML Kit Text Recognition
+                implementation("com.google.mlkit:text-recognition:16.0.0")
+                // coroutine extension to await Tasks
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
             }
         }
 

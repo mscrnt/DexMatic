@@ -5,9 +5,9 @@ package com.dexmatic.android.ui.viewmodel
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dexmatic.shared.AndroidOcrService      // <— import this
 import com.dexmatic.shared.Contact
 import com.dexmatic.shared.OcrService
-import com.dexmatic.shared.FakeOcrService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,46 +15,32 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
-/**
- * Represents the various UI states for the camera/OCR flow.
- */
 sealed class CameraUiState {
-    /** Initial or reset state. */
-    object Idle : CameraUiState()
-    /** OCR is in progress. */
+    object Idle    : CameraUiState()
     object Loading : CameraUiState()
-    /** OCR succeeded with a Contact. */
     data class Success(val contact: Contact) : CameraUiState()
-    /** OCR failed with an error. */
-    data class Error(val throwable: Throwable) : CameraUiState()
+    data class Error  (val throwable: Throwable) : CameraUiState()
 }
 
-/**
- * ViewModel to coordinate camera capture + OCR parsing.
- */
 class CameraViewModel(
-    private val ocrService: OcrService = FakeOcrService()
+    // use AndroidOcrService() here
+    private val ocrService: OcrService = AndroidOcrService()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CameraUiState>(CameraUiState.Idle)
     val uiState: StateFlow<CameraUiState> = _uiState.asStateFlow()
 
-    /**
-     * Call this when the camera returns a Bitmap (or null on cancel).
-     */
     fun onImageCaptured(bitmap: Bitmap?) {
         if (bitmap == null) {
             _uiState.value = CameraUiState.Idle
             return
         }
-
-        // Kick off OCR in IO dispatcher
         _uiState.value = CameraUiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val bytes = ByteArrayOutputStream().use { stream ->
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                    stream.toByteArray()
+                val bytes = ByteArrayOutputStream().use { st ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, st)
+                    st.toByteArray()
                 }
                 val contact = ocrService.parseContact(bytes)
                 _uiState.value = CameraUiState.Success(contact)
@@ -64,9 +50,6 @@ class CameraViewModel(
         }
     }
 
-    /**
-     * Reset back to the Idle state (e.g. to re-scan another card).
-     */
     fun reset() {
         _uiState.value = CameraUiState.Idle
     }

@@ -2,70 +2,83 @@
 
 package com.dexmatic.android.ui.scan
 
+import android.Manifest
 import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dexmatic.android.ui.viewmodel.CameraUiState
+import com.dexmatic.android.ui.viewmodel.CameraViewModel
 import com.dexmatic.shared.Contact
-import com.dexmatic.shared.FakeOcrService
-import com.dexmatic.shared.OcrService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 
 @Composable
 fun ScanCardScreen(
     onScanComplete: (Contact) -> Unit,
-    ocrService: OcrService = FakeOcrService()
+    viewModel: CameraViewModel = viewModel()
 ) {
-    val scope = rememberCoroutineScope()
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var contact by remember { mutableStateOf<Contact?>(null) }
+    var previewBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
 
-    val launcher = rememberLauncherForActivityResult(TakePicturePreview()) { result: Bitmap? ->
-        bitmap = result
-        result?.let { bmp ->
-            scope.launch(Dispatchers.IO) {
-                val bytes = ByteArrayOutputStream().use { stream ->
-                    bmp.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                    stream.toByteArray()
-                }
-                // parsed contact
-                contact = ocrService.parseContact(bytes)
-            }
+    // 1️⃣ Preview launcher – needs to be declared before the permission launcher
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicturePreview()
+    ) { bmp: Bitmap? ->
+        previewBitmap = bmp
+        viewModel.onImageCaptured(bmp)
+    }
+
+    // 2️⃣ Permission launcher
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted: Boolean ->
+        if (granted) {
+            takePictureLauncher.launch(null)
         }
     }
 
-    // as soon as we get a Contact, call back
-    LaunchedEffect(contact) {
-        contact?.let(onScanComplete)
+    // 3️⃣ When OCR completes, navigate
+    LaunchedEffect(uiState) {
+        if (uiState is CameraUiState.Success) {
+            onScanComplete((uiState as CameraUiState.Success).contact)
+            viewModel.reset()
+        }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Button(onClick = { launcher.launch(null) }) {
+        Button(onClick = {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }) {
             Text("Scan Business Card")
         }
 
-        bitmap?.let { bmp ->
+        previewBitmap?.let { bmp ->
             Spacer(Modifier.height(16.dp))
             Image(
                 bitmap = bmp.asImageBitmap(),
-                contentDescription = "Captured card",
+                contentDescription = "Captured card image",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
             )
+        }
+
+        if (uiState is CameraUiState.Loading) {
+            Spacer(Modifier.height(16.dp))
+            CircularProgressIndicator()
         }
     }
 }

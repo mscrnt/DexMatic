@@ -3,7 +3,10 @@
 package com.dexmatic.android.ui.review
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.OutlinedButton
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -11,57 +14,69 @@ import com.dexmatic.shared.Contact
 
 @Composable
 fun ReviewCardScreen(
-    initialContact: Contact = Contact(name = "", phone = null, email = null),
-    onSave: (Contact) -> Unit
+    contact: Contact,
+    onSave: (Contact) -> Unit,
+    onCancel: () -> Unit
 ) {
-    // Local editable state
-    var name by remember { mutableStateOf(initialContact.name) }
-    var phone by remember { mutableStateOf(initialContact.phone.orEmpty()) }
-    var email by remember { mutableStateOf(initialContact.email.orEmpty()) }
+    var name    by remember { mutableStateOf(contact.name) }
+    var company by remember { mutableStateOf(contact.company.orEmpty()) }
+    var phone   by remember { mutableStateOf(contact.phone.orEmpty()) }
+    var email   by remember { mutableStateOf(contact.email.orEmpty()) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Review Contact") })
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Name") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = company,
+            onValueChange = { company = it },
+            label = { Text("Company") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = phone,
+            onValueChange = { phone = it },
+            label = { Text("Phone") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = phone,
-                onValueChange = { phone = it },
-                label = { Text("Phone") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
+            OutlinedButton(
+                onClick   = onCancel,
+                modifier  = Modifier.weight(1f)
+            ) { Text("Cancel") }
             Button(
-                onClick = { 
-                    onSave(Contact(name = name, phone = phone.ifBlank { null }, email = email.ifBlank { null })) 
+                onClick   = {
+                    onSave(
+                        Contact(
+                            name    = name,
+                            phone   = phone.ifBlank   { null },
+                            email   = email.ifBlank   { null },
+                            company = company.ifBlank { null }
+                        )
+                    )
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Text("Save Contact")
-            }
+                modifier  = Modifier.weight(1f)
+            ) { Text("Save") }
         }
     }
 }

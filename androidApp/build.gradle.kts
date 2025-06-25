@@ -10,12 +10,12 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.dexmatic.android"
-        minSdk = 24
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
-        multiDexEnabled = true
+        applicationId     = "com.dexmatic.android"
+        minSdk            = 24
+        targetSdk         = 35
+        versionCode       = 1
+        versionName       = "1.0"
+        multiDexEnabled   = true
     }
 
     buildFeatures {
@@ -34,6 +34,19 @@ android {
 
     kotlinOptions {
         jvmTarget = "11"
+    }
+
+    buildTypes {
+        debug {
+            // Include full native debug symbols in debug builds
+            ndk {
+                debugSymbolLevel = "FULL"  // options: "FULL" or "SYMBOL_TABLE"
+            }
+        }
+        release {
+            // Your release config here…
+            isMinifyEnabled = false
+        }
     }
 
     packaging {
@@ -59,6 +72,9 @@ dependencies {
 
     // Navigation for Compose
     implementation("androidx.navigation:navigation-compose:2.6.0")
+
+    // ML Kit Text Recognition
+    implementation("com.google.mlkit:text-recognition:16.0.0")
 
     // Tooling support (Previews, @Preview, etc.)
     debugImplementation("androidx.compose.ui:ui-tooling")
