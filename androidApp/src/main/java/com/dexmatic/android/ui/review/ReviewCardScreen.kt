@@ -1,3 +1,5 @@
+// File: androidApp/src/main/java/com/dexmatic/android/ui/review/ReviewCardScreen.kt
+
 package com.dexmatic.android.ui.review
 
 import androidx.compose.foundation.layout.*
@@ -5,11 +7,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.dexmatic.shared.Contact
@@ -20,10 +18,10 @@ fun ReviewCardScreen(
     onSave: (Contact) -> Unit,
     onCancel: () -> Unit
 ) {
-    var name by remember { mutableStateOf(contact.name) }
+    var name    by remember { mutableStateOf(contact.name) }
     var company by remember { mutableStateOf(contact.company.orEmpty()) }
-    var phone by remember { mutableStateOf(contact.phone.orEmpty()) }
-    var email by remember { mutableStateOf(contact.email.orEmpty()) }
+    var phone   by remember { mutableStateOf(contact.phone.orEmpty()) }
+    var email   by remember { mutableStateOf(contact.email.orEmpty()) }
 
     Column(
         modifier = Modifier
@@ -56,25 +54,28 @@ fun ReviewCardScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(1f))
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             OutlinedButton(
-                onClick = onCancel,
-                modifier = Modifier.weight(1f)
+                onClick   = onCancel,
+                modifier  = Modifier.weight(1f)
             ) { Text("Cancel") }
             Button(
-                onClick = {
+                onClick   = {
                     onSave(
                         Contact(
-                            name = name,
-                            phone = phone.ifBlank { null },
-                            email = email.ifBlank { null },
+                            name    = name,
+                            phone   = phone.ifBlank   { null },
+                            email   = email.ifBlank   { null },
                             company = company.ifBlank { null }
                         )
                     )
                 },
-                modifier = Modifier.weight(1f)
+                modifier  = Modifier.weight(1f)
             ) { Text("Save") }
         }
     }

@@ -5,6 +5,7 @@ package com.dexmatic.android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -28,8 +29,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DexMaticApp() {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("DexMatic") }) }
+        topBar = {
+            TopAppBar(title = { Text("DexMatic") })
+        }
     ) { innerPadding ->
-        NavGraph(modifier = Modifier.padding(innerPadding))
+        NavGraph(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        )
     }
 }

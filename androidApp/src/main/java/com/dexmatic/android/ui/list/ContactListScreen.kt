@@ -1,3 +1,5 @@
+// File: androidApp/src/main/java/com/dexmatic/android/ui/list/ContactListScreen.kt
+
 package com.dexmatic.android.ui.list
 
 import androidx.compose.foundation.clickable
@@ -20,7 +22,7 @@ import com.dexmatic.shared.Contact
 fun ContactListScreen(
     contacts: List<Contact>,
     onAddNew: () -> Unit,
-    onClick: (Contact) -> Unit
+    onClick:   (Contact) -> Unit
 ) {
     Scaffold(
         floatingActionButton = {
@@ -53,7 +55,22 @@ private fun ContactRow(contact: Contact, onClick: (Contact) -> Unit) {
     ) {
         Column {
             Text(contact.name, style = MaterialTheme.typography.h6)
-            Text(contact.email.orEmpty(), style = MaterialTheme.typography.body2)
+
+            // only show phone if non-blank
+            contact.phone
+                ?.takeIf { it.isNotBlank() }
+                ?.let { phone ->
+                    Spacer(Modifier.height(4.dp))
+                    Text(phone, style = MaterialTheme.typography.body2)
+                }
+
+            // only show email if non-blank
+            contact.email
+                ?.takeIf { it.isNotBlank() }
+                ?.let { email ->
+                    Spacer(Modifier.height(4.dp))
+                    Text(email, style = MaterialTheme.typography.body2)
+                }
         }
     }
 }
