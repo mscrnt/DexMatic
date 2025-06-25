@@ -1,5 +1,3 @@
-// File: androidApp/src/main/java/com/dexmatic/android/ui/scan/ScanCardScreen.kt
-
 package com.dexmatic.android.ui.scan
 
 import android.graphics.Bitmap
@@ -8,44 +6,35 @@ import androidx.activity.result.contract.ActivityResultContracts.TakePicturePrev
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dexmatic.android.ui.viewmodel.CameraUiState
+import com.dexmatic.android.ui.viewmodel.CameraViewModel
 import com.dexmatic.shared.Contact
-import com.dexmatic.shared.FakeOcrService
-import com.dexmatic.shared.OcrService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 
 @Composable
 fun ScanCardScreen(
     onScanComplete: (Contact) -> Unit,
-    ocrService: OcrService = FakeOcrService()
+    viewModel: CameraViewModel = viewModel()
 ) {
-    val scope = rememberCoroutineScope()
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var contact by remember { mutableStateOf<Contact?>(null) }
+    var preview by remember { mutableStateOf<Bitmap?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
 
     val launcher = rememberLauncherForActivityResult(TakePicturePreview()) { result: Bitmap? ->
-        bitmap = result
-        result?.let { bmp ->
-            scope.launch(Dispatchers.IO) {
-                val bytes = ByteArrayOutputStream().use { stream ->
-                    bmp.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                    stream.toByteArray()
-                }
-                // parsed contact
-                contact = ocrService.parseContact(bytes)
-            }
-        }
+        preview = result
+        viewModel.onImageCaptured(result)
     }
 
-    // as soon as we get a Contact, call back
-    LaunchedEffect(contact) {
-        contact?.let(onScanComplete)
+    LaunchedEffect(uiState) {
+        if (uiState is CameraUiState.Success) {
+            onScanComplete((uiState as CameraUiState.Success).contact)
+            viewModel.reset()
+        }
     }
 
     Column(
@@ -57,7 +46,7 @@ fun ScanCardScreen(
             Text("Scan Business Card")
         }
 
-        bitmap?.let { bmp ->
+        preview?.let { bmp ->
             Spacer(Modifier.height(16.dp))
             Image(
                 bitmap = bmp.asImageBitmap(),
@@ -66,6 +55,11 @@ fun ScanCardScreen(
                     .fillMaxWidth()
                     .height(200.dp)
             )
+        }
+
+        if (uiState is CameraUiState.Loading) {
+            Spacer(Modifier.height(16.dp))
+            CircularProgressIndicator()
         }
     }
 }

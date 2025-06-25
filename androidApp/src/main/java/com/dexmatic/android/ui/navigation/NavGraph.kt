@@ -1,5 +1,3 @@
-// File: androidApp/src/main/java/com/dexmatic/android/ui/navigation/NavGraph.kt
-
 package com.dexmatic.android.ui.navigation
 
 import androidx.compose.runtime.Composable
@@ -11,6 +9,13 @@ import androidx.navigation.compose.rememberNavController
 import com.dexmatic.android.ui.list.ContactListScreen
 import com.dexmatic.android.ui.review.ReviewCardScreen
 import com.dexmatic.android.ui.scan.ScanCardScreen
+import com.dexmatic.shared.Contact
+
+object Routes {
+    const val Scan = "scan"
+    const val Review = "review"
+    const val List = "list"
+}
 
 @Composable
 fun NavGraph(
@@ -20,28 +25,43 @@ fun NavGraph(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = "scan"
+        startDestination = Routes.Scan
     ) {
-        composable("scan") {
+        composable(Routes.Scan) {
             ScanCardScreen(
                 onScanComplete = { contact ->
-                    // TODO: pass `contact` into review screen via savedStateHandle or args
-                    navController.navigate("review")
+                    navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("parsedContact", contact)
+                    navController.navigate(Routes.Review)
                 }
             )
         }
-        composable("review") {
-            ReviewCardScreen(
-                onSave = {
-                    navController.navigate("list")
-                }
-            )
+        composable(Routes.Review) {
+            val parsed = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<Contact>("parsedContact")
+            parsed?.let { contact ->
+                ReviewCardScreen(
+                    contact = contact,
+                    onSave = { updated ->
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("savedContact", updated)
+                        navController.navigate(Routes.List)
+                    },
+                    onCancel = { navController.popBackStack() }
+                )
+            }
         }
-        composable("list") {
+        composable(Routes.List) {
+            val saved = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<Contact>("savedContact")
             ContactListScreen(
-                onAddNew = {
-                    navController.navigate("scan")
-                }
+                contacts = saved?.let { listOf(it) } ?: emptyList(),
+                onAddNew = { navController.navigate(Routes.Scan) },
+                onClick = {}
             )
         }
     }
